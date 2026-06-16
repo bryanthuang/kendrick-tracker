@@ -799,7 +799,7 @@ export default function App() {
       await dbSet(key, value);
       setStatus("Saved ✓");
       setTimeout(() => setStatus(""), 2000);
-    } catch (e) { setStatus("Save failed"); }
+    } catch (e) { setStatus(`Save failed: ${e.message}`); }
   }, []);
 
   useEffect(() => {

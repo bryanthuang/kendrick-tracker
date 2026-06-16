@@ -26,5 +26,9 @@ export async function dbSet(key, value) {
       body: JSON.stringify({ key, value, updated_at: new Date().toISOString() }),
     }
   )
-  return res.ok
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`${res.status}: ${err}`)
+  }
+  return true
 }
