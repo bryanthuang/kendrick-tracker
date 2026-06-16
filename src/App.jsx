@@ -1009,7 +1009,7 @@ export default function App() {
                 width: 34, height: 34, borderRadius: 8, border: `1px solid ${C.borderMed}`,
                 background: C.bgSoft, cursor: "pointer", fontSize: 16,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                color: C.text, flexShrink: 0, alignSelf: "center",
+                color: C.text, flexShrink: 0, alignSelf: "center", marginTop: 35,
               }}>
                 {dark ? "☀" : "◑"}
               </button>
