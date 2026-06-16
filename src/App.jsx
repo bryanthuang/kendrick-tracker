@@ -996,7 +996,11 @@ export default function App() {
         <div style={{ marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: `1px solid ${C.border}` }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
             <div>
-              <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 8 }}>
+              {/* Lily Lai branding */}
+              <div style={{ display: "inline-flex", alignItems: "center", background: C.teal, borderRadius: 8, padding: "5px 12px", marginBottom: 12 }}>
+                <img src="/lily-lai-logo.png" alt="Lily Lai" style={{ height: 22, display: "block", filter: "brightness(0) invert(1)" }} />
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 6 }}>
                 2669 Kendrick Circle · Stonegate West, San Jose
               </div>
               <h1 style={{ fontSize: 26, fontWeight: 700, color: C.text, margin: 0, letterSpacing: "-.03em" }}>Listing Prep Tracker</h1>
