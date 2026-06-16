@@ -605,13 +605,13 @@ function ExpensesTab({ expenses, setExpenses, save }) {
   const lpct = total > 0 ? Math.round(labor / total * 100) : 0;
   const mpct = total > 0 ? Math.round(mats / total * 100) : 0;
 
-  const catColor = { labor: "teal", materials: "green", other: "purple" };
+  const catColor = { labor: "teal", materials: "amber", other: "purple" };
   const statusColor = { confirmed: "teal", estimated: "amber", paid: "green" };
-  const catAccent = { labor: "teal", materials: "green", other: "purple" };
+  const catAccent = { labor: "teal", materials: "amber", other: "purple" };
 
   const donutSlices = [
     { value: labor, color: C.teal },
-    { value: mats,  color: C.green },
+    { value: mats,  color: C.amber },
     { value: other, color: C.purple },
   ];
 
@@ -620,7 +620,7 @@ function ExpensesTab({ expenses, setExpenses, save }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 12, marginBottom: "1.5rem" }}>
         <MetricCard label="Total spend" value={fmt(total)} accent="blue" />
         <MetricCard label="Labor" value={fmt(labor)} sub={`${lpct}% of total`} accent="teal" />
-        <MetricCard label="Materials" value={fmt(mats)} sub={`${mpct}% of total`} accent="green" />
+        <MetricCard label="Materials" value={fmt(mats)} sub={`${mpct}% of total`} accent="amber" />
         <MetricCard label="Confirmed" value={fmt(confirmed)} sub={`${fmt(total - confirmed)} est.`} accent="amber" />
       </div>
 
@@ -632,7 +632,7 @@ function ExpensesTab({ expenses, setExpenses, save }) {
           <div style={{ flex: 1 }}>
             {[
               { label: "Labor", pct: lpct, amount: labor, color: C.teal },
-              { label: "Materials", pct: mpct, amount: mats, color: C.green },
+              { label: "Materials", pct: mpct, amount: mats, color: C.amber },
               { label: "Other", pct: total > 0 ? Math.round(other / total * 100) : 0, amount: other, color: C.purple },
             ].map(b => (
               <div key={b.label} style={{ marginBottom: 12 }}>
