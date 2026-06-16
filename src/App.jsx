@@ -471,7 +471,7 @@ function MaterialsTab() {
 
   const statusConfig = {
     delivered:        { label: "Delivered",        color: C.green,  bg: C.greenLight, icon: "✓" },
-    out_for_delivery: { label: "Out for delivery", color: C.teal,   bg: C.tealLight,  icon: "→" },
+    out_for_delivery: { label: "Out for delivery", color: C.blue,   bg: C.blueLight,  icon: "→" },
     shipped:          { label: "Shipped",           color: C.amber,  bg: C.amberLight, icon: "·" },
   };
 
@@ -488,7 +488,7 @@ function MaterialsTab() {
 
   const etaStatusLabel = (items) => {
     if (items.every(i => i.status === "delivered")) return { label: "Delivered", color: C.green, bg: C.greenLight };
-    if (items.some(i => i.status === "out_for_delivery")) return { label: "Out for delivery", color: C.teal, bg: C.tealLight };
+    if (items.some(i => i.status === "out_for_delivery")) return { label: "Out for delivery", color: C.blue, bg: C.blueLight };
     return { label: "Shipped", color: C.amber, bg: C.amberLight };
   };
 
@@ -508,7 +508,7 @@ function MaterialsTab() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, flex: 1 }}>
           <MetricCard label="Order total" value={fmt(orderTotal)} sub="WN61059545" accent="green" />
-          <MetricCard label="Out for delivery" value={outForDelivery.toString()} sub="arriving today" accent="teal" />
+          <MetricCard label="Out for delivery" value={outForDelivery.toString()} sub="arriving today" accent="blue" />
           <MetricCard label="En route" value={shipped.toString()} sub="items shipped" accent="amber" />
         </div>
       </div>
@@ -518,11 +518,11 @@ function MaterialsTab() {
         <div style={{ fontSize: 10, fontWeight: 700, color: C.textHint, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12 }}>Delivery progress</div>
         <div style={{ display: "flex", gap: 3, marginBottom: 12, height: 8, borderRadius: 6, overflow: "hidden" }}>
           {ORDER_ITEMS.map(item => (
-            <div key={item.id} style={{ flex: 1, background: item.status === "delivered" ? C.green : item.status === "out_for_delivery" ? C.teal : C.amberLight }} title={item.name} />
+            <div key={item.id} style={{ flex: 1, background: item.status === "delivered" ? C.green : item.status === "out_for_delivery" ? C.blue : C.amberLight }} title={item.name} />
           ))}
         </div>
         <div style={{ display: "flex", gap: 16, fontSize: 11 }}>
-          {[["delivered","Delivered",C.green],["out_for_delivery","Out for delivery",C.teal],["shipped","En route",C.amber]].map(([s,lbl,col]) => (
+          {[["delivered","Delivered",C.green],["out_for_delivery","Out for delivery",C.blue],["shipped","En route",C.amber]].map(([s,lbl,col]) => (
             <div key={s} style={{ display: "flex", alignItems: "center", gap: 5, color: C.textSub }}>
               <div style={{ width: 8, height: 8, borderRadius: 2, background: col }} />
               {lbl}
