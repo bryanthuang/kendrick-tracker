@@ -996,24 +996,25 @@ export default function App() {
         <div style={{ marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: `1px solid ${C.border}` }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
             <div>
-              {/* Lily Lai branding */}
-              <img src="/lily-logo.png" alt="Lily Lai" style={{ height: 36, display: "block", marginBottom: 10, borderRadius: 6 }} />
               <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 6 }}>
                 2669 Kendrick Circle · Stonegate West, San Jose
               </div>
               <h1 style={{ fontSize: 26, fontWeight: 700, color: C.text, margin: 0, letterSpacing: "-.03em" }}>Listing Prep Tracker</h1>
             </div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 4 }}>
-              {IS_EDIT && <span style={{ fontSize: 11, background: C.tealLight, color: C.teal, padding: "4px 12px", borderRadius: 20, fontWeight: 600, border: `1px solid rgba(13,148,136,0.2)` }}>Edit mode</span>}
-              {status && <span style={{ fontSize: 12, color: C.textHint }}>{status}</span>}
-              <button onClick={() => setDark(d => !d)} title={dark ? "Switch to light mode" : "Switch to dark mode"} style={{
-                width: 34, height: 34, borderRadius: 8, border: `1px solid ${C.borderMed}`,
-                background: C.bgSoft, cursor: "pointer", fontSize: 16,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: C.text, flexShrink: 0,
-              }}>
-                {dark ? "☀" : "◑"}
-              </button>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                {IS_EDIT && <span style={{ fontSize: 11, background: C.tealLight, color: C.teal, padding: "4px 12px", borderRadius: 20, fontWeight: 600, border: `1px solid rgba(13,148,136,0.2)` }}>Edit mode</span>}
+                {status && <span style={{ fontSize: 12, color: C.textHint }}>{status}</span>}
+                <button onClick={() => setDark(d => !d)} title={dark ? "Switch to light mode" : "Switch to dark mode"} style={{
+                  width: 34, height: 34, borderRadius: 8, border: `1px solid ${C.borderMed}`,
+                  background: C.bgSoft, cursor: "pointer", fontSize: 16,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: C.text, flexShrink: 0,
+                }}>
+                  {dark ? "☀" : "◑"}
+                </button>
+              </div>
+              <img src="/lily-logo.png" alt="Lily Lai" style={{ height: 40, display: "block", borderRadius: "50%" }} />
             </div>
           </div>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px" }}>
