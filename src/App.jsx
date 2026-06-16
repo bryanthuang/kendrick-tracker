@@ -621,7 +621,7 @@ function ExpensesTab({ expenses, setExpenses, save }) {
         <MetricCard label="Total spend" value={fmt(total)} accent="blue" />
         <MetricCard label="Labor" value={fmt(labor)} sub={`${lpct}% of total`} accent="teal" />
         <MetricCard label="Materials" value={fmt(mats)} sub={`${mpct}% of total`} accent="amber" />
-        <MetricCard label="Confirmed" value={fmt(confirmed)} sub={`${fmt(total - confirmed)} est.`} accent="green" />
+        <MetricCard label="Confirmed" value={fmt(confirmed)} sub={`${fmt(total - confirmed)} est.`} accent="purple" />
       </div>
 
       {/* Donut + breakdown */}
