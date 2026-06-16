@@ -997,7 +997,7 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
             <div>
               {/* Lily Lai branding */}
-              <img src="/lily-lai-logo.png" alt="Lily Lai" style={{ height: 28, display: "block", marginBottom: 10, filter: dark ? "none" : "invert(1)" }} />
+              <img src="/lily-logo.png" alt="Lily Lai" style={{ height: 36, display: "block", marginBottom: 10, borderRadius: 6 }} />
               <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 6 }}>
                 2669 Kendrick Circle · Stonegate West, San Jose
               </div>
