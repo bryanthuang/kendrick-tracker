@@ -994,14 +994,14 @@ export default function App() {
 
         {/* Header */}
         <div style={{ marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: `1px solid ${C.border}` }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div style={{ position: "relative" }}>
             <div>
               <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 6 }}>
                 2669 Kendrick Circle · Stonegate West, San Jose
               </div>
               <h1 style={{ fontSize: 26, fontWeight: 700, color: C.text, margin: 0, letterSpacing: "-.03em" }}>Listing Prep Tracker</h1>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+            <div style={{ position: "absolute", top: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 {IS_EDIT && <span style={{ fontSize: 11, background: C.tealLight, color: C.teal, padding: "4px 12px", borderRadius: 20, fontWeight: 600, border: `1px solid rgba(13,148,136,0.2)` }}>Edit mode</span>}
                 {status && <span style={{ fontSize: 12, color: C.textHint }}>{status}</span>}
@@ -1014,7 +1014,7 @@ export default function App() {
                   {dark ? "☀" : "◑"}
                 </button>
               </div>
-              <img src="/lily-logo.png" alt="Lily Lai" style={{ height: 40, display: "block", borderRadius: "50%" }} />
+              <img src="/lily-logo.png" alt="Lily Lai" style={{ height: 100, display: "block", borderRadius: "50%" }} />
             </div>
           </div>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px" }}>
