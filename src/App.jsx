@@ -74,61 +74,62 @@ function initials(name) {
 }
 
 const C = {
-  bg: "#ffffff",
-  bgSoft: "#f9fafb",
-  bgPage: "#f3f4f6",
-  border: "rgba(0,0,0,0.1)",
-  borderMed: "rgba(0,0,0,0.18)",
-  text: "#111827",
-  textSub: "#6b7280",
-  textHint: "#9ca3af",
-  blue: "#3b82f6", blueLight: "#dbeafe", blueDark: "#1e40af",
-  green: "#22c55e", greenLight: "#dcfce7", greenDark: "#166534",
-  amber: "#f59e0b", amberLight: "#fef3c7", amberDark: "#92400e",
-  purple: "#8b5cf6", purpleLight: "#ede9fe", purpleDark: "#5b21b6",
+  bg: "#FFFFFF",
+  bgSoft: "#F8FAFC",
+  bgPage: "#F1F5F9",
+  border: "rgba(15,23,42,0.07)",
+  borderMed: "rgba(15,23,42,0.13)",
+  text: "#0F172A",
+  textSub: "#64748B",
+  textHint: "#94A3B8",
+  teal: "#0D9488",    tealLight: "#F0FDFA",  tealDark: "#134E4A",
+  blue: "#2563EB",    blueLight: "#EFF6FF",  blueDark: "#1E3A8A",
+  green: "#059669",   greenLight: "#ECFDF5", greenDark: "#064E3B",
+  amber: "#D97706",   amberLight: "#FFFBEB", amberDark: "#92400E",
+  purple: "#7C3AED",  purpleLight: "#F5F3FF", purpleDark: "#4C1D95",
+  red: "#DC2626",     redLight: "#FEF2F2",
 };
 
 function MetricCard({ label, value, sub, accent }) {
-  const accents = {
-    blue: { bar: C.blue }, green: { bar: C.green },
-    amber: { bar: C.amber }, purple: { bar: C.purple },
-  };
-  const a = accents[accent] || { bar: "#d1d5db" };
+  const bars = { teal: C.teal, blue: C.blue, green: C.green, amber: C.amber, purple: C.purple };
+  const bar = bars[accent] || C.teal;
   return (
-    <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 14, padding: "1rem 1.1rem", borderTop: `3px solid ${a.bar}` }}>
-      <div style={{ fontSize: 11, color: C.textSub, fontWeight: 500, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 500, color: C.text, lineHeight: 1.1 }}>{value}</div>
-      {sub && <div style={{ fontSize: 11, color: C.textHint, marginTop: 4 }}>{sub}</div>}
+    <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 14, padding: "1.1rem 1.25rem", borderTop: `3px solid ${bar}`, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+      <div style={{ fontSize: 10, color: C.textHint, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".09em", marginBottom: 10 }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 700, color: C.text, letterSpacing: "-.02em", lineHeight: 1 }}>{value}</div>
+      {sub && <div style={{ fontSize: 11, color: C.textHint, marginTop: 7 }}>{sub}</div>}
     </div>
   );
 }
 
 function Badge({ label, color = "gray" }) {
   const map = {
-    blue: { bg: C.blueLight, color: C.blueDark },
-    green: { bg: C.greenLight, color: C.greenDark },
-    amber: { bg: C.amberLight, color: C.amberDark },
-    purple: { bg: C.purpleLight, color: C.purpleDark },
-    gray: { bg: C.bgSoft, color: C.textSub },
+    teal:   { bg: C.tealLight,   color: C.teal },
+    blue:   { bg: C.blueLight,   color: C.blue },
+    green:  { bg: C.greenLight,  color: C.green },
+    amber:  { bg: C.amberLight,  color: C.amber },
+    purple: { bg: C.purpleLight, color: C.purple },
+    gray:   { bg: C.bgSoft,      color: C.textSub },
   };
   const s = map[color] || map.gray;
   return (
-    <span style={{ fontSize: 11, fontWeight: 500, padding: "3px 9px", borderRadius: 20, background: s.bg, color: s.color, whiteSpace: "nowrap" }}>
+    <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, background: s.bg, color: s.color, whiteSpace: "nowrap", letterSpacing: ".03em" }}>
       {label}
     </span>
   );
 }
 
-function Avatar({ name, color = "blue" }) {
+function Avatar({ name, color = "teal" }) {
   const map = {
-    blue: { bg: C.blueLight, color: C.blueDark },
-    green: { bg: C.greenLight, color: C.greenDark },
-    amber: { bg: C.amberLight, color: C.amberDark },
+    teal:   { bg: C.tealLight,   color: C.tealDark },
+    blue:   { bg: C.blueLight,   color: C.blueDark },
+    green:  { bg: C.greenLight,  color: C.greenDark },
+    amber:  { bg: C.amberLight,  color: C.amberDark },
     purple: { bg: C.purpleLight, color: C.purpleDark },
   };
-  const s = map[color] || map.blue;
+  const s = map[color] || map.teal;
   return (
-    <div style={{ width: 38, height: 38, borderRadius: "50%", background: s.bg, color: s.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 500, flexShrink: 0 }}>
+    <div style={{ width: 40, height: 40, borderRadius: 10, background: s.bg, color: s.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0, letterSpacing: ".03em" }}>
       {initials(name)}
     </div>
   );
@@ -136,7 +137,7 @@ function Avatar({ name, color = "blue" }) {
 
 function Card({ children, faded, style: st = {} }) {
   return (
-    <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 14, padding: "1rem 1.1rem", marginBottom: 10, opacity: faded ? 0.55 : 1, ...st }}>
+    <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 8, opacity: faded ? 0.45 : 1, boxShadow: "0 1px 3px rgba(0,0,0,0.04)", ...st }}>
       {children}
     </div>
   );
@@ -144,8 +145,8 @@ function Card({ children, faded, style: st = {} }) {
 
 function SectionHeader({ label, action }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "1.25rem 0 .6rem" }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: C.textSub, textTransform: "uppercase", letterSpacing: ".07em" }}>{label}</div>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "1.5rem 0 .75rem" }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: C.textHint, textTransform: "uppercase", letterSpacing: ".1em" }}>{label}</div>
       {IS_EDIT && action}
     </div>
   );
@@ -154,11 +155,12 @@ function SectionHeader({ label, action }) {
 function Btn({ onClick, label, primary, small }) {
   return (
     <button onClick={onClick} style={{
-      fontSize: small ? 12 : 13, padding: small ? "5px 12px" : "7px 16px",
-      borderRadius: 8, cursor: "pointer", fontWeight: 500,
+      fontSize: small ? 12 : 13, padding: small ? "5px 12px" : "8px 18px",
+      borderRadius: 8, cursor: "pointer", fontWeight: 600,
       border: primary ? "none" : `1px solid ${C.borderMed}`,
       background: primary ? C.text : "transparent",
       color: primary ? C.bg : C.text,
+      letterSpacing: "-.01em",
     }}>{label}</button>
   );
 }
@@ -166,9 +168,9 @@ function Btn({ onClick, label, primary, small }) {
 function IconBtn({ onClick, icon, danger }) {
   return (
     <button onClick={onClick} style={{
-      background: "none", border: `1px solid ${C.border}`, borderRadius: 8,
-      width: 30, height: 30, cursor: "pointer", fontSize: 14,
-      color: danger ? "#ef4444" : C.textHint,
+      background: "none", border: `1px solid ${C.border}`, borderRadius: 7,
+      width: 30, height: 30, cursor: "pointer", fontSize: 13,
+      color: danger ? C.red : C.textHint,
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>{icon}</button>
   );
@@ -177,9 +179,9 @@ function IconBtn({ onClick, icon, danger }) {
 function Modal({ open, title, onClose, onSave, children }) {
   if (!open) return null;
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "1rem" }}>
-      <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 16, padding: "1.5rem", width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
-        <h3 style={{ fontSize: 16, fontWeight: 500, marginBottom: "1.25rem", color: C.text }}>{title}</h3>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "1rem" }}>
+      <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 18, padding: "1.5rem", width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: "1.25rem", color: C.text, letterSpacing: "-.02em" }}>{title}</h3>
         {children}
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: "1.25rem", paddingTop: "1rem", borderTop: `1px solid ${C.border}` }}>
           <Btn onClick={onClose} label="Cancel" />
@@ -214,7 +216,7 @@ function TradeCalendar({ trades }) {
   const DAYS = ["S","M","T","W","T","F","S"];
   const startDow = 1;
   const daysInMonth = 30;
-  const tradeColors = [C.blue, C.purple, C.amber, C.green, C.blue, "#ef4444"];
+  const tradeColors = [C.teal, C.blue, C.amber, C.purple, C.green, C.red];
   const cells = [];
   for (let i = 0; i < startDow; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
@@ -234,7 +236,7 @@ function TradeCalendar({ trades }) {
 
   return (
     <Card>
-      <div style={{ fontSize: 12, fontWeight: 600, color: C.textSub, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 10 }}>June 2026 schedule</div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: C.textHint, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12 }}>June 2026 schedule</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 3, marginBottom: 8 }}>
         {DAYS.map((d, i) => <div key={i} style={{ textAlign: "center", fontSize: 10, fontWeight: 600, color: C.textHint, paddingBottom: 4 }}>{d}</div>)}
         {cells.map((day, i) => {
@@ -299,25 +301,25 @@ function TradesTab({ trades, setTrades, save }) {
   const total = trades.reduce((s, t) => s + parseCost(t.cost), 0);
   const done = trades.filter(t => t.done).length;
   const pct = trades.length > 0 ? Math.round(done / trades.length * 100) : 0;
-  const avatarColors = ["blue", "purple", "amber", "green", "blue", "purple"];
+  const avatarColors = ["teal", "blue", "amber", "purple", "green", "teal"];
 
-  const statusColor = (status, isDone) => isDone ? "green" : status === "scheduled" ? "blue" : "amber";
+  const statusColor = (status, isDone) => isDone ? "green" : status === "scheduled" ? "teal" : "amber";
   const statusLabel = (status, isDone) => isDone ? "Done" : status === "scheduled" ? "Scheduled" : "TBD";
 
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 12, marginBottom: "1.5rem" }}>
-        <MetricCard label="Labor total" value={fmt(total)} accent="blue" />
+        <MetricCard label="Labor total" value={fmt(total)} accent="teal" />
         <MetricCard label="Progress" value={`${done} / ${trades.length}`} sub={`${pct}% complete`} accent="green" />
         <MetricCard label="List date" value="Jun 24–25" accent="amber" />
       </div>
 
       <div style={{ marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: C.textSub, marginBottom: 6 }}>
-          <span>Overall progress</span><span style={{ fontWeight: 500, color: C.text }}>{pct}%</span>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.textSub, marginBottom: 8, fontWeight: 500 }}>
+          <span>Overall progress</span><span style={{ fontWeight: 700, color: C.text }}>{pct}%</span>
         </div>
-        <div style={{ background: C.bgPage, borderRadius: 20, height: 8, overflow: "hidden" }}>
-          <div style={{ height: "100%", borderRadius: 20, background: `linear-gradient(90deg, ${C.blue}, ${C.green})`, width: `${pct}%`, transition: "width .4s ease" }} />
+        <div style={{ background: C.bgPage, borderRadius: 20, height: 6, overflow: "hidden" }}>
+          <div style={{ height: "100%", borderRadius: 20, background: `linear-gradient(90deg, ${C.teal}, ${C.green})`, width: `${pct}%`, transition: "width .5s ease" }} />
         </div>
       </div>
 
@@ -383,9 +385,9 @@ function MaterialsTab() {
   const shipped = ORDER_ITEMS.filter(i => i.status === "shipped").length;
 
   const statusConfig = {
-    delivered:        { label: "Delivered",        color: C.greenDark,  bg: C.greenLight, icon: "✓" },
-    out_for_delivery: { label: "Out for delivery", color: C.blueDark,   bg: C.blueLight,  icon: "🚚" },
-    shipped:          { label: "Shipped",           color: C.amberDark,  bg: C.amberLight, icon: "📦" },
+    delivered:        { label: "Delivered",        color: C.green,  bg: C.greenLight, icon: "✓" },
+    out_for_delivery: { label: "Out for delivery", color: C.teal,   bg: C.tealLight,  icon: "→" },
+    shipped:          { label: "Shipped",           color: C.amber,  bg: C.amberLight, icon: "·" },
   };
 
   const etaGroups = {};
@@ -416,13 +418,13 @@ function MaterialsTab() {
 
       <Card>
         <div style={{ fontSize: 12, fontWeight: 600, color: C.textSub, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 10 }}>Delivery progress</div>
-        <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
+        <div style={{ display: "flex", gap: 3, marginBottom: 10 }}>
           {ORDER_ITEMS.map(item => (
-            <div key={item.id} style={{ flex: 1, height: 8, borderRadius: 4, background: item.status === "delivered" ? C.green : item.status === "out_for_delivery" ? C.blue : C.amberLight }} title={item.name} />
+            <div key={item.id} style={{ flex: 1, height: 6, borderRadius: 3, background: item.status === "delivered" ? C.green : item.status === "out_for_delivery" ? C.teal : C.amberLight }} title={item.name} />
           ))}
         </div>
         <div style={{ display: "flex", gap: 12, fontSize: 11 }}>
-          {[["delivered","Delivered",C.green],["out_for_delivery","Out for delivery",C.blue],["shipped","Shipped",C.amber]].map(([s,lbl,col]) => (
+          {[["delivered","Delivered",C.green],["out_for_delivery","Out for delivery",C.teal],["shipped","Shipped",C.amber]].map(([s,lbl,col]) => (
             <div key={s} style={{ display: "flex", alignItems: "center", gap: 4, color: C.textSub }}>
               <div style={{ width: 8, height: 8, borderRadius: 2, background: col }} />
               {lbl}
@@ -456,13 +458,13 @@ function MaterialsTab() {
         );
       })}
 
-      <div style={{ background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 12, padding: "1rem", marginTop: "1rem" }}>
+      <div style={{ background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 12, padding: "1rem 1.25rem", marginTop: "1rem" }}>
         {[["Subtotal", fmt(subtotal)], ["Discount", "-$108.24"], ["Sales tax", "$203.28"]].map(([lbl, val]) => (
-          <div key={lbl} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.textSub, marginBottom: 6 }}>
-            <span>{lbl}</span><span style={{ color: lbl === "Discount" ? C.greenDark : C.text }}>{val}</span>
+          <div key={lbl} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.textSub, marginBottom: 8 }}>
+            <span>{lbl}</span><span style={{ color: lbl === "Discount" ? C.green : C.text, fontWeight: 500 }}>{val}</span>
           </div>
         ))}
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 15, fontWeight: 600, color: C.text, borderTop: `1px solid ${C.borderMed}`, paddingTop: 10, marginTop: 4 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 15, fontWeight: 700, color: C.text, borderTop: `1px solid ${C.border}`, paddingTop: 12, marginTop: 4, letterSpacing: "-.01em" }}>
           <span>Order total</span><span>{fmt(orderTotal)}</span>
         </div>
       </div>
@@ -502,8 +504,8 @@ function ExpensesTab({ expenses, setExpenses, save }) {
   const lpct = total > 0 ? Math.round(labor / total * 100) : 0;
   const mpct = total > 0 ? Math.round(mats / total * 100) : 0;
 
-  const catColor = { labor: "blue", materials: "green", other: "purple" };
-  const statusColor = { confirmed: "blue", estimated: "amber", paid: "green" };
+  const catColor = { labor: "teal", materials: "green", other: "purple" };
+  const statusColor = { confirmed: "teal", estimated: "amber", paid: "green" };
 
   return (
     <div>
@@ -577,9 +579,9 @@ function ExpensesTab({ expenses, setExpenses, save }) {
         </Card>
       ))}
 
-      <div style={{ background: C.bgSoft, border: `1px solid ${C.borderMed}`, borderRadius: 12, padding: "1rem 1.1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 14, fontWeight: 600 }}>Total</span>
-        <span style={{ fontSize: 18, fontWeight: 600 }}>{fmt(total)}</span>
+      <div style={{ background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 12, padding: "1rem 1.25rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: C.text, letterSpacing: "-.01em" }}>Total</span>
+        <span style={{ fontSize: 20, fontWeight: 700, color: C.text, letterSpacing: "-.02em" }}>{fmt(total)}</span>
       </div>
     </div>
   );
@@ -611,7 +613,7 @@ function AgentsTab({ agents, setAgents, save }) {
 
   const statusColor = { interested: "blue", active: "green", offer: "amber", closed: "gray" };
   const statusLabel = { interested: "Interested", active: "Active", offer: "Offer", closed: "Closed" };
-  const avatarColors = ["blue", "purple", "green", "amber", "blue"];
+  const avatarColors = ["teal", "blue", "purple", "amber", "green"];
 
   return (
     <div>
@@ -707,16 +709,16 @@ function TransactionTab({ contacts, setContacts, save }) {
 
   return (
     <div>
-      <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: ".875rem 1rem", marginBottom: "1.5rem", display: "flex", gap: 10 }}>
-        <span style={{ fontSize: 18 }}>⚠️</span>
+      <div style={{ background: C.redLight, border: `1px solid rgba(220,38,38,0.15)`, borderRadius: 12, padding: ".875rem 1rem", marginBottom: "1.5rem", display: "flex", gap: 10 }}>
+        <span style={{ fontSize: 15, marginTop: 1 }}>⚠</span>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#991b1b", marginBottom: 3 }}>Wire Fraud Alert</div>
-          <div style={{ fontSize: 12, color: "#b91c1c" }}>Never trust wiring instructions sent via email. Always call your escrow officer at a verified number before wiring any funds.</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#991B1B", marginBottom: 3 }}>Wire Fraud Alert</div>
+          <div style={{ fontSize: 12, color: "#B91C1C", lineHeight: 1.5 }}>Never trust wiring instructions sent via email. Always call your escrow officer at a verified number before wiring any funds.</div>
         </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 12, marginBottom: "1.5rem" }}>
-        <MetricCard label="File number" value="26-167162" sub="WFG National Title" accent="purple" />
+        <MetricCard label="File number" value="26-167162" sub="WFG National Title" accent="teal" />
         <MetricCard label="Contacts" value={contacts.length.toString()} sub="transaction parties" accent="blue" />
         <MetricCard label="Seller" value="Castor Lai" sub="& Alicia" accent="amber" />
       </div>
@@ -779,11 +781,11 @@ function TransactionTab({ contacts, setContacts, save }) {
 // ─── Main App ─────────────────────────────────────────────────────────────────
 
 const TABS = [
-  { key: "trades",      label: "Trades",      icon: "🔨" },
-  { key: "materials",   label: "Materials",   icon: "📦" },
-  { key: "expenses",    label: "Expenses",    icon: "💰" },
-  { key: "agents",      label: "Agents",      icon: "👥" },
-  { key: "transaction", label: "Transaction", icon: "🏦" },
+  { key: "trades",      label: "Trades" },
+  { key: "materials",   label: "Materials" },
+  { key: "expenses",    label: "Expenses" },
+  { key: "agents",      label: "Agents" },
+  { key: "transaction", label: "Transaction" },
 ];
 
 export default function App() {
@@ -856,35 +858,42 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 860, margin: "0 auto", padding: "1.5rem 2rem", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+    <div style={{ maxWidth: 880, margin: "0 auto", padding: "2rem 2rem 3rem", fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       {/* Header */}
-      <div style={{ marginBottom: "1.5rem" }}>
-        <div style={{ fontSize: 11, fontWeight: 500, color: C.textHint, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 4 }}>
-          2669 Kendrick Circle · Stonegate West, San Jose
-        </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ fontSize: 22, fontWeight: 600, color: C.text, margin: 0 }}>Listing prep tracker</h1>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {IS_EDIT && <span style={{ fontSize: 11, background: C.greenLight, color: C.greenDark, padding: "3px 10px", borderRadius: 20, fontWeight: 500 }}>✎ Edit mode</span>}
-            {status && <span style={{ fontSize: 12, color: C.textHint, fontStyle: "italic" }}>{status}</span>}
+      <div style={{ marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 8 }}>
+              2669 Kendrick Circle · Stonegate West, San Jose
+            </div>
+            <h1 style={{ fontSize: 26, fontWeight: 700, color: C.text, margin: 0, letterSpacing: "-.03em" }}>Listing Prep Tracker</h1>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 4 }}>
+            {IS_EDIT && <span style={{ fontSize: 11, background: C.tealLight, color: C.teal, padding: "4px 12px", borderRadius: 20, fontWeight: 600, border: `1px solid rgba(13,148,136,0.2)` }}>Edit mode</span>}
+            {status && <span style={{ fontSize: 12, color: C.textHint }}>{status}</span>}
           </div>
         </div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, background: C.blueLight, borderRadius: 20, padding: "4px 12px" }}>
-          <span style={{ fontSize: 12, color: C.blueDark }}>🗓 Target list date: Jun 24–25, 2026</span>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px" }}>
+          <span style={{ fontSize: 12, color: C.textSub, fontWeight: 500 }}>Target list date: Jun 24–25, 2026</span>
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 6, marginBottom: "1.5rem", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", marginBottom: "2rem", borderBottom: `1px solid ${C.border}` }}>
         {TABS.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)} style={{
-            fontSize: 13, padding: "7px 14px", borderRadius: 20, cursor: "pointer", fontWeight: 500,
-            border: tab === t.key ? "none" : `1px solid ${C.border}`,
-            background: tab === t.key ? C.text : C.bg,
-            color: tab === t.key ? C.bg : C.textSub,
-            display: "flex", alignItems: "center", gap: 5,
+            fontSize: 13, padding: "10px 20px 10px 0", cursor: "pointer",
+            border: "none",
+            borderBottom: tab === t.key ? `2px solid ${C.teal}` : "2px solid transparent",
+            background: "transparent",
+            color: tab === t.key ? C.teal : C.textSub,
+            fontWeight: tab === t.key ? 600 : 500,
+            marginBottom: -1,
+            marginRight: 4,
+            transition: "color 0.15s ease",
+            whiteSpace: "nowrap",
           }}>
-            <span>{t.icon}</span> {t.label}
+            {t.label}
           </button>
         ))}
       </div>
