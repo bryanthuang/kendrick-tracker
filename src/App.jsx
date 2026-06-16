@@ -1015,8 +1015,10 @@ export default function App() {
               </button>
             </div>
           </div>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px" }}>
-            <span style={{ fontSize: 12, color: C.textSub, fontWeight: 500 }}>Target list date: Jun 24–25, 2026</span>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 12, background: C.tealLight, border: `1px solid ${C.teal}`, borderRadius: 20, padding: "6px 14px" }}>
+            <span style={{ fontSize: 15 }}>🎯</span>
+            <span style={{ fontSize: 12, color: C.tealDark, fontWeight: 600 }}>Target list date:</span>
+            <span style={{ fontSize: 12, color: C.teal, fontWeight: 700 }}>Jun 24–25, 2026</span>
           </div>
         </div>
 
