@@ -993,7 +993,7 @@ export default function App() {
       <div style={{ maxWidth: 880, margin: "0 auto", padding: "2rem 2rem 3rem", fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
 
         {/* Header */}
-        <div style={{ marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ paddingBottom: "1.5rem", borderBottom: `1px solid ${C.border}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div>
               <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 6 }}>
