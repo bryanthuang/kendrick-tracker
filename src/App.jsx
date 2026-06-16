@@ -14,16 +14,16 @@ const DEFAULT_CONTACTS = [
 ];
 
 const ORDER_ITEMS = [
-  { id: 2001, name: "Delta Faryn 4in Bathroom Faucet — brushed nickel", qty: 2, unit: 99.00, total: 198.00, eta: "Jun 11", status: "out_for_delivery" },
-  { id: 2002, name: "HUOKU Ceder 32.3in 6-Light Sputnik — matte black, gray glass", qty: 1, unit: 175.89, total: 175.89, eta: "Jun 17", status: "shipped" },
-  { id: 2003, name: "Y'INSP Aura Radiance 12in 1-Light — matte black, ceramic dome + opal glass", qty: 1, unit: 109.00, total: 109.00, eta: "Jun 12", status: "shipped" },
-  { id: 2004, name: "Delta Faryn Shower Faucet — brushed nickel, valve included", qty: 2, unit: 149.00, total: 298.00, eta: "Jun 11", status: "out_for_delivery" },
-  { id: 2005, name: "Y'INSP 27.56in 5-Light Sputnik — matte black, white glass", qty: 1, unit: 185.00, total: 185.00, eta: "Jun 13", status: "shipped" },
-  { id: 2006, name: "Relyblo 24x36in Mirror — matte black frame", qty: 2, unit: 60.00, total: 120.00, eta: "Jun 12", status: "shipped" },
-  { id: 2007, name: "Eglo Maserlo 15.95in LED Flush Mount — silver/satin nickel", qty: 2, unit: 219.99, total: 439.98, eta: "Jun 16", status: "shipped" },
+  { id: 2001, name: "Delta Faryn 4in Bathroom Faucet — brushed nickel", qty: 2, unit: 99.00, total: 198.00, eta: "Jun 11", status: "delivered" },
+  { id: 2002, name: "HUOKU Ceder 32.3in 6-Light Sputnik — matte black, gray glass", qty: 1, unit: 175.89, total: 175.89, eta: "Jun 13", status: "delivered" },
+  { id: 2003, name: "Y'INSP Aura Radiance 12in 1-Light — matte black, ceramic dome + opal glass", qty: 1, unit: 109.00, total: 109.00, eta: "Jun 12", status: "delivered" },
+  { id: 2004, name: "Delta Faryn Shower Faucet — brushed nickel, valve included", qty: 2, unit: 149.00, total: 298.00, eta: "Jun 11", status: "delivered" },
+  { id: 2005, name: "Y'INSP 27.56in 5-Light Sputnik — matte black, white glass", qty: 1, unit: 185.00, total: 185.00, eta: "Jun 12", status: "delivered" },
+  { id: 2006, name: "Relyblo 24x36in Mirror — matte black frame", qty: 2, unit: 60.00, total: 120.00, eta: "Jun 12", status: "delivered" },
+  { id: 2007, name: "Eglo Maserlo 15.95in LED Flush Mount — silver/satin nickel", qty: 2, unit: 219.99, total: 439.98, eta: "Jun 16", status: "out_for_delivery" },
   { id: 2008, name: "Feit Electric T6 E12 LED Bulbs Soft White 4-pack", qty: 2, unit: 12.98, total: 25.96, eta: "Jun 10", status: "delivered" },
-  { id: 2009, name: "Newhouse Lighting T4 G9 LED Bulbs 4-pack", qty: 1, unit: 18.97, total: 18.97, eta: "Jun 11", status: "out_for_delivery" },
-  { id: 2010, name: "aiwen 17.71in 5-Light — matte black, globe glass", qty: 1, unit: 94.99, total: 94.99, eta: "Jun 17", status: "shipped" },
+  { id: 2009, name: "Newhouse Lighting T4 G9 LED Bulbs 4-pack", qty: 1, unit: 18.97, total: 18.97, eta: "Jun 11", status: "delivered" },
+  { id: 2010, name: "aiwen 17.71in 5-Light — matte black, globe glass", qty: 1, unit: 94.99, total: 94.99, eta: "Jun 12", status: "delivered" },
   { id: 2011, name: "Feit Electric T4 G9 LED Bulbs 3000K", qty: 6, unit: 9.98, total: 59.88, eta: "Jun 10", status: "delivered" },
   { id: 2012, name: "Delta Faryn Toilet Paper Holder — brushed nickel", qty: 2, unit: 23.98, total: 47.96, eta: "Jun 10", status: "delivered" },
   { id: 2013, name: "EcoSmart A19 Dimmable LED Bulbs 4-pack", qty: 1, unit: 10.98, total: 10.98, eta: "Jun 10", status: "delivered" },
@@ -457,7 +457,7 @@ function MaterialsTab() {
       })}
 
       <div style={{ background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 12, padding: "1rem", marginTop: "1rem" }}>
-        {[["Subtotal", fmt(subtotal)], ["Discount", "-$29.94"], ["Sales tax", "$203.27"]].map(([lbl, val]) => (
+        {[["Subtotal", fmt(subtotal)], ["Discount", "-$108.24"], ["Sales tax", "$203.28"]].map(([lbl, val]) => (
           <div key={lbl} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.textSub, marginBottom: 6 }}>
             <span>{lbl}</span><span style={{ color: lbl === "Discount" ? C.greenDark : C.text }}>{val}</span>
           </div>
