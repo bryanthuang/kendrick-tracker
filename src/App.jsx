@@ -994,7 +994,7 @@ export default function App() {
 
         {/* Header */}
         <div style={{ marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: `1px solid ${C.border}` }}>
-          <div style={{ position: "relative" }}>
+          <div style={{ position: "relative", minHeight: 175 }}>
             <div>
               <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 6 }}>
                 2669 Kendrick Circle · Stonegate West, San Jose
