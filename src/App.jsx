@@ -1002,19 +1002,17 @@ export default function App() {
               <h1 style={{ fontSize: 26, fontWeight: 700, color: C.text, margin: 0, letterSpacing: "-.03em" }}>Listing Prep Tracker</h1>
             </div>
             <div style={{ position: "absolute", top: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                {IS_EDIT && <span style={{ fontSize: 11, background: C.tealLight, color: C.teal, padding: "4px 12px", borderRadius: 20, fontWeight: 600, border: `1px solid rgba(13,148,136,0.2)` }}>Edit mode</span>}
-                {status && <span style={{ fontSize: 12, color: C.textHint }}>{status}</span>}
-                <button onClick={() => setDark(d => !d)} title={dark ? "Switch to light mode" : "Switch to dark mode"} style={{
-                  width: 34, height: 34, borderRadius: 8, border: `1px solid ${C.borderMed}`,
-                  background: C.bgSoft, cursor: "pointer", fontSize: 16,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  color: C.text, flexShrink: 0,
-                }}>
-                  {dark ? "☀" : "◑"}
-                </button>
-              </div>
+              {IS_EDIT && <span style={{ fontSize: 11, background: C.tealLight, color: C.teal, padding: "4px 12px", borderRadius: 20, fontWeight: 600, border: `1px solid rgba(13,148,136,0.2)` }}>Edit mode</span>}
+              {status && <span style={{ fontSize: 12, color: C.textHint }}>{status}</span>}
               <img src="/lily-logo.png" alt="Lily Lai" style={{ height: 100, display: "block", borderRadius: "50%" }} />
+              <button onClick={() => setDark(d => !d)} title={dark ? "Switch to light mode" : "Switch to dark mode"} style={{
+                width: 34, height: 34, borderRadius: 8, border: `1px solid ${C.borderMed}`,
+                background: C.bgSoft, cursor: "pointer", fontSize: 16,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: C.text, flexShrink: 0, alignSelf: "center",
+              }}>
+                {dark ? "☀" : "◑"}
+              </button>
             </div>
           </div>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px" }}>
