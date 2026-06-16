@@ -904,11 +904,11 @@ function TransactionTab({ contacts, setContacts, save }) {
 // ─── Main App ─────────────────────────────────────────────────────────────────
 
 const TABS = [
-  { key: "trades",      label: "Trades" },
-  { key: "materials",   label: "Materials" },
-  { key: "expenses",    label: "Expenses" },
-  { key: "agents",      label: "Agents" },
-  { key: "transaction", label: "Transaction" },
+  { key: "trades",      label: "Trades",      icon: "🔨" },
+  { key: "materials",   label: "Materials",   icon: "📦" },
+  { key: "expenses",    label: "Expenses",    icon: "💰" },
+  { key: "agents",      label: "Agents",      icon: "👥" },
+  { key: "transaction", label: "Transaction", icon: "🏛️" },
 ];
 
 export default function App() {
@@ -1034,7 +1034,7 @@ export default function App() {
               transition: "color 0.15s ease",
               whiteSpace: "nowrap",
             }}>
-              {t.label}
+              {t.icon} {t.label}
             </button>
           ))}
         </div>
