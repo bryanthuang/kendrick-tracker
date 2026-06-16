@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext, createContext } from "react";
 import { dbGet, dbSet } from "./supabase.js";
 
 const TRADE_KEY = "trade-tracker-v2";
@@ -6,7 +6,6 @@ const EXPENSE_KEY = "expense-tracker-v1";
 const AGENT_KEY = "agent-tracker-v1";
 const TRANSACTION_KEY = "transaction-contacts-v1";
 
-// Read-only mode: no ?edit param = client view
 const IS_EDIT = new URLSearchParams(window.location.search).has("edit");
 
 const DEFAULT_CONTACTS = [
@@ -58,6 +57,36 @@ const DEFAULT_AGENTS = [
   { id: 5, name: "Helen Nguyen", brokerage: "Coldwell Banker Realty", phone: "(408) 623-6577", email: "ha.nguyen@cbnorcal.com", notes: "CalRE #01256922", status: "interested" },
 ];
 
+// ─── Theme ────────────────────────────────────────────────────────────────────
+
+const LIGHT = {
+  bg: "#FFFFFF", bgSoft: "#F8FAFC", bgPage: "#F1F5F9",
+  border: "rgba(15,23,42,0.07)", borderMed: "rgba(15,23,42,0.13)",
+  text: "#0F172A", textSub: "#64748B", textHint: "#94A3B8",
+  teal: "#0D9488",   tealLight: "#F0FDFA",              tealDark: "#134E4A",
+  blue: "#2563EB",   blueLight: "#EFF6FF",              blueDark: "#1E3A8A",
+  green: "#059669",  greenLight: "#ECFDF5",             greenDark: "#064E3B",
+  amber: "#D97706",  amberLight: "#FFFBEB",             amberDark: "#92400E",
+  purple: "#7C3AED", purpleLight: "#F5F3FF",            purpleDark: "#4C1D95",
+  red: "#DC2626",    redLight: "#FEF2F2",
+};
+
+const DARK = {
+  bg: "#1E293B", bgSoft: "#0F172A", bgPage: "#0B1221",
+  border: "rgba(255,255,255,0.08)", borderMed: "rgba(255,255,255,0.14)",
+  text: "#F1F5F9", textSub: "#94A3B8", textHint: "#475569",
+  teal: "#2DD4BF",   tealLight: "rgba(45,212,191,0.12)",  tealDark: "#CCFBF1",
+  blue: "#60A5FA",   blueLight: "rgba(96,165,250,0.12)",  blueDark: "#BFDBFE",
+  green: "#34D399",  greenLight: "rgba(52,211,153,0.12)", greenDark: "#A7F3D0",
+  amber: "#FBBF24",  amberLight: "rgba(251,191,36,0.12)", amberDark: "#FDE68A",
+  purple: "#A78BFA", purpleLight: "rgba(167,139,250,0.12)", purpleDark: "#DDD6FE",
+  red: "#F87171",    redLight: "rgba(248,113,113,0.12)",
+};
+
+const ThemeContext = createContext(LIGHT);
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function parseCost(str) {
   if (!str || str === "TBD") return 0;
   const nums = str.replace(/[^0-9,.\-]/g, "").split(/[-–]/).map(s => parseFloat(s.replace(/,/g, ""))).filter(n => !isNaN(n));
@@ -73,24 +102,60 @@ function initials(name) {
   return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 }
 
-const C = {
-  bg: "#FFFFFF",
-  bgSoft: "#F8FAFC",
-  bgPage: "#F1F5F9",
-  border: "rgba(15,23,42,0.07)",
-  borderMed: "rgba(15,23,42,0.13)",
-  text: "#0F172A",
-  textSub: "#64748B",
-  textHint: "#94A3B8",
-  teal: "#0D9488",    tealLight: "#F0FDFA",  tealDark: "#134E4A",
-  blue: "#2563EB",    blueLight: "#EFF6FF",  blueDark: "#1E3A8A",
-  green: "#059669",   greenLight: "#ECFDF5", greenDark: "#064E3B",
-  amber: "#D97706",   amberLight: "#FFFBEB", amberDark: "#92400E",
-  purple: "#7C3AED",  purpleLight: "#F5F3FF", purpleDark: "#4C1D95",
-  red: "#DC2626",     redLight: "#FEF2F2",
-};
+// ─── Graphic Components ───────────────────────────────────────────────────────
+
+function ProgressRing({ pct, size = 88, stroke = 9 }) {
+  const C = useContext(ThemeContext);
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const filled = Math.min(pct / 100, 1) * circ;
+  return (
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={C.bgPage} strokeWidth={stroke} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={C.teal} strokeWidth={stroke}
+          strokeDasharray={`${filled} ${circ}`} strokeLinecap="round"
+          style={{ transition: "stroke-dasharray 0.6s ease" }}
+        />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontSize: 18, fontWeight: 700, color: C.text, letterSpacing: "-.03em", lineHeight: 1 }}>{pct}%</span>
+        <span style={{ fontSize: 9, color: C.textHint, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".06em", marginTop: 2 }}>done</span>
+      </div>
+    </div>
+  );
+}
+
+function DonutChart({ slices, size = 110, thickness = 18 }) {
+  const C = useContext(ThemeContext);
+  const r = (size / 2) - thickness / 2;
+  const circ = 2 * Math.PI * r;
+  const total = slices.reduce((s, sl) => s + sl.value, 0);
+  let cum = 0;
+  return (
+    <svg width={size} height={size} style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={C.bgPage} strokeWidth={thickness} />
+      {slices.filter(sl => sl.value > 0 && total > 0).map((sl, i) => {
+        const pct = sl.value / total;
+        const dash = pct * circ;
+        const offset = -(cum * circ);
+        cum += pct;
+        return (
+          <circle key={i} cx={size/2} cy={size/2} r={r} fill="none"
+            stroke={sl.color} strokeWidth={thickness}
+            strokeDasharray={`${dash - 2} ${circ - dash + 2}`}
+            strokeDashoffset={offset}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+// ─── UI Primitives ────────────────────────────────────────────────────────────
 
 function MetricCard({ label, value, sub, accent }) {
+  const C = useContext(ThemeContext);
   const bars = { teal: C.teal, blue: C.blue, green: C.green, amber: C.amber, purple: C.purple };
   const bar = bars[accent] || C.teal;
   return (
@@ -103,6 +168,7 @@ function MetricCard({ label, value, sub, accent }) {
 }
 
 function Badge({ label, color = "gray" }) {
+  const C = useContext(ThemeContext);
   const map = {
     teal:   { bg: C.tealLight,   color: C.teal },
     blue:   { bg: C.blueLight,   color: C.blue },
@@ -120,6 +186,7 @@ function Badge({ label, color = "gray" }) {
 }
 
 function Avatar({ name, color = "teal" }) {
+  const C = useContext(ThemeContext);
   const map = {
     teal:   { bg: C.tealLight,   color: C.tealDark },
     blue:   { bg: C.blueLight,   color: C.blueDark },
@@ -135,15 +202,23 @@ function Avatar({ name, color = "teal" }) {
   );
 }
 
-function Card({ children, faded, style: st = {} }) {
+function Card({ children, faded, accent, style: st = {} }) {
+  const C = useContext(ThemeContext);
+  const accentColors = { teal: C.teal, blue: C.blue, green: C.green, amber: C.amber, purple: C.purple, red: C.red };
   return (
-    <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 8, opacity: faded ? 0.45 : 1, boxShadow: "0 1px 3px rgba(0,0,0,0.04)", ...st }}>
+    <div style={{
+      background: C.bg, border: `1px solid ${C.border}`,
+      borderLeft: accent ? `3px solid ${accentColors[accent] || C.border}` : `1px solid ${C.border}`,
+      borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 8,
+      opacity: faded ? 0.45 : 1, boxShadow: "0 1px 3px rgba(0,0,0,0.04)", ...st
+    }}>
       {children}
     </div>
   );
 }
 
 function SectionHeader({ label, action }) {
+  const C = useContext(ThemeContext);
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "1.5rem 0 .75rem" }}>
       <div style={{ fontSize: 10, fontWeight: 700, color: C.textHint, textTransform: "uppercase", letterSpacing: ".1em" }}>{label}</div>
@@ -153,6 +228,7 @@ function SectionHeader({ label, action }) {
 }
 
 function Btn({ onClick, label, primary, small }) {
+  const C = useContext(ThemeContext);
   return (
     <button onClick={onClick} style={{
       fontSize: small ? 12 : 13, padding: small ? "5px 12px" : "8px 18px",
@@ -166,6 +242,7 @@ function Btn({ onClick, label, primary, small }) {
 }
 
 function IconBtn({ onClick, icon, danger }) {
+  const C = useContext(ThemeContext);
   return (
     <button onClick={onClick} style={{
       background: "none", border: `1px solid ${C.border}`, borderRadius: 7,
@@ -177,10 +254,11 @@ function IconBtn({ onClick, icon, danger }) {
 }
 
 function Modal({ open, title, onClose, onSave, children }) {
+  const C = useContext(ThemeContext);
   if (!open) return null;
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "1rem" }}>
-      <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 18, padding: "1.5rem", width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "1rem" }}>
+      <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 18, padding: "1.5rem", width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
         <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: "1.25rem", color: C.text, letterSpacing: "-.02em" }}>{title}</h3>
         {children}
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: "1.25rem", paddingTop: "1rem", borderTop: `1px solid ${C.border}` }}>
@@ -193,6 +271,7 @@ function Modal({ open, title, onClose, onSave, children }) {
 }
 
 function Field({ label, children }) {
+  const C = useContext(ThemeContext);
   return (
     <div style={{ marginBottom: ".875rem" }}>
       <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: C.textSub, marginBottom: 5 }}>{label}</label>
@@ -213,6 +292,7 @@ function parseTradeRange(dateStr) {
 }
 
 function TradeCalendar({ trades }) {
+  const C = useContext(ThemeContext);
   const DAYS = ["S","M","T","W","T","F","S"];
   const startDow = 1;
   const daysInMonth = 30;
@@ -243,9 +323,10 @@ function TradeCalendar({ trades }) {
           if (!day) return <div key={i} />;
           const tradeIdxs = dayMap[day] || [];
           const isToday = day === todayDay;
+          const bgColor = tradeIdxs.length > 0 ? tradeColors[tradeIdxs[0]] + "22" : "transparent";
           return (
-            <div key={i} style={{ textAlign: "center", borderRadius: 8, padding: "4px 2px", background: tradeIdxs.length > 0 ? tradeColors[tradeIdxs[0]] + "22" : "transparent", border: isToday ? `1.5px solid ${C.blue}` : "1.5px solid transparent" }}>
-              <div style={{ fontSize: 11, fontWeight: isToday ? 600 : 400, color: isToday ? C.blueDark : tradeIdxs.length > 0 ? C.text : C.textSub }}>{day}</div>
+            <div key={i} style={{ textAlign: "center", borderRadius: 8, padding: "4px 2px", background: bgColor, border: isToday ? `1.5px solid ${C.teal}` : "1.5px solid transparent" }}>
+              <div style={{ fontSize: 11, fontWeight: isToday ? 700 : 400, color: isToday ? C.teal : tradeIdxs.length > 0 ? C.text : C.textSub }}>{day}</div>
               {tradeIdxs.length > 0 && (
                 <div style={{ display: "flex", justifyContent: "center", gap: 2, marginTop: 1 }}>
                   {tradeIdxs.slice(0, 3).map(idx => (
@@ -272,6 +353,7 @@ function TradeCalendar({ trades }) {
 // ─── Trades Tab ───────────────────────────────────────────────────────────────
 
 function TradesTab({ trades, setTrades, save }) {
+  const C = useContext(ThemeContext);
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({});
 
@@ -302,24 +384,26 @@ function TradesTab({ trades, setTrades, save }) {
   const done = trades.filter(t => t.done).length;
   const pct = trades.length > 0 ? Math.round(done / trades.length * 100) : 0;
   const avatarColors = ["teal", "blue", "amber", "purple", "green", "teal"];
+  const cardAccents = ["teal", "blue", "amber", "purple", "green", "red"];
 
   const statusColor = (status, isDone) => isDone ? "green" : status === "scheduled" ? "teal" : "amber";
   const statusLabel = (status, isDone) => isDone ? "Done" : status === "scheduled" ? "Scheduled" : "TBD";
 
   return (
     <div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 12, marginBottom: "1.5rem" }}>
-        <MetricCard label="Labor total" value={fmt(total)} accent="teal" />
-        <MetricCard label="Progress" value={`${done} / ${trades.length}`} sub={`${pct}% complete`} accent="green" />
-        <MetricCard label="List date" value="Jun 24–25" accent="amber" />
-      </div>
-
-      <div style={{ marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.textSub, marginBottom: 8, fontWeight: 500 }}>
-          <span>Overall progress</span><span style={{ fontWeight: 700, color: C.text }}>{pct}%</span>
+      {/* Metrics row with progress ring */}
+      <div style={{ display: "flex", gap: 12, marginBottom: "1.5rem", alignItems: "stretch" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 14, padding: "1.1rem 1.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", flexShrink: 0 }}>
+          <ProgressRing pct={pct} />
+          <div>
+            <div style={{ fontSize: 10, color: C.textHint, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".09em", marginBottom: 6 }}>Completion</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{done} of {trades.length} trades</div>
+            <div style={{ fontSize: 11, color: C.textHint, marginTop: 3 }}>done</div>
+          </div>
         </div>
-        <div style={{ background: C.bgPage, borderRadius: 20, height: 6, overflow: "hidden" }}>
-          <div style={{ height: "100%", borderRadius: 20, background: `linear-gradient(90deg, ${C.teal}, ${C.green})`, width: `${pct}%`, transition: "width .5s ease" }} />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, flex: 1 }}>
+          <MetricCard label="Labor total" value={fmt(total)} accent="teal" />
+          <MetricCard label="List date" value="Jun 24–25" accent="amber" />
         </div>
       </div>
 
@@ -343,13 +427,13 @@ function TradesTab({ trades, setTrades, save }) {
       <SectionHeader label={`Trades · ${trades.length}`} action={<Btn onClick={openAdd} label="+ Add trade" small />} />
 
       {trades.map((t, i) => (
-        <Card key={t.id} faded={t.done}>
+        <Card key={t.id} faded={t.done} accent={t.done ? undefined : cardAccents[i % cardAccents.length]}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
             <Avatar name={t.name} color={avatarColors[i % avatarColors.length]} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 500, color: C.text }}>{t.name}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{t.name}</div>
                   {t.scope && <div style={{ fontSize: 12, color: C.textSub, marginTop: 2 }}>{t.scope}</div>}
                 </div>
                 <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
@@ -378,6 +462,7 @@ function TradesTab({ trades, setTrades, save }) {
 // ─── Materials Tab ────────────────────────────────────────────────────────────
 
 function MaterialsTab() {
+  const C = useContext(ThemeContext);
   const subtotal = ORDER_ITEMS.reduce((s, i) => s + i.total, 0);
   const orderTotal = 2235.94;
   const delivered = ORDER_ITEMS.filter(i => i.status === "delivered").length;
@@ -402,30 +487,43 @@ function MaterialsTab() {
   });
 
   const etaStatusLabel = (items) => {
-    if (items.every(i => i.status === "delivered")) return { label: "Delivered", color: C.greenDark, bg: C.greenLight };
-    if (items.some(i => i.status === "out_for_delivery")) return { label: "Out for delivery", color: C.blueDark, bg: C.blueLight };
-    return { label: "Shipped", color: C.amberDark, bg: C.amberLight };
+    if (items.every(i => i.status === "delivered")) return { label: "Delivered", color: C.green, bg: C.greenLight };
+    if (items.some(i => i.status === "out_for_delivery")) return { label: "Out for delivery", color: C.teal, bg: C.tealLight };
+    return { label: "Shipped", color: C.amber, bg: C.amberLight };
   };
+
+  const deliveredPct = Math.round((delivered / ORDER_ITEMS.length) * 100);
 
   return (
     <div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: 12, marginBottom: "1.5rem" }}>
-        <MetricCard label="Order total" value={fmt(orderTotal)} sub="WN61059545" accent="green" />
-        <MetricCard label="Delivered" value={`${delivered} / ${ORDER_ITEMS.length}`} sub="items received" accent="green" />
-        <MetricCard label="Out for delivery" value={outForDelivery.toString()} sub="arriving today" accent="blue" />
-        <MetricCard label="En route" value={shipped.toString()} sub="items shipped" accent="amber" />
+      {/* Metrics with progress ring */}
+      <div style={{ display: "flex", gap: 12, marginBottom: "1.5rem", alignItems: "stretch" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 14, padding: "1.1rem 1.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)", flexShrink: 0 }}>
+          <ProgressRing pct={deliveredPct} />
+          <div>
+            <div style={{ fontSize: 10, color: C.textHint, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".09em", marginBottom: 6 }}>Delivery</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{delivered} of {ORDER_ITEMS.length} items</div>
+            <div style={{ fontSize: 11, color: C.textHint, marginTop: 3 }}>received</div>
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, flex: 1 }}>
+          <MetricCard label="Order total" value={fmt(orderTotal)} sub="WN61059545" accent="green" />
+          <MetricCard label="Out for delivery" value={outForDelivery.toString()} sub="arriving today" accent="teal" />
+          <MetricCard label="En route" value={shipped.toString()} sub="items shipped" accent="amber" />
+        </div>
       </div>
 
+      {/* Segmented delivery bar */}
       <Card>
-        <div style={{ fontSize: 12, fontWeight: 600, color: C.textSub, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 10 }}>Delivery progress</div>
-        <div style={{ display: "flex", gap: 3, marginBottom: 10 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: C.textHint, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12 }}>Delivery progress</div>
+        <div style={{ display: "flex", gap: 3, marginBottom: 12, height: 8, borderRadius: 6, overflow: "hidden" }}>
           {ORDER_ITEMS.map(item => (
-            <div key={item.id} style={{ flex: 1, height: 6, borderRadius: 3, background: item.status === "delivered" ? C.green : item.status === "out_for_delivery" ? C.teal : C.amberLight }} title={item.name} />
+            <div key={item.id} style={{ flex: 1, background: item.status === "delivered" ? C.green : item.status === "out_for_delivery" ? C.teal : C.amberLight }} title={item.name} />
           ))}
         </div>
-        <div style={{ display: "flex", gap: 12, fontSize: 11 }}>
-          {[["delivered","Delivered",C.green],["out_for_delivery","Out for delivery",C.teal],["shipped","Shipped",C.amber]].map(([s,lbl,col]) => (
-            <div key={s} style={{ display: "flex", alignItems: "center", gap: 4, color: C.textSub }}>
+        <div style={{ display: "flex", gap: 16, fontSize: 11 }}>
+          {[["delivered","Delivered",C.green],["out_for_delivery","Out for delivery",C.teal],["shipped","En route",C.amber]].map(([s,lbl,col]) => (
+            <div key={s} style={{ display: "flex", alignItems: "center", gap: 5, color: C.textSub }}>
               <div style={{ width: 8, height: 8, borderRadius: 2, background: col }} />
               {lbl}
             </div>
@@ -440,17 +538,18 @@ function MaterialsTab() {
         return (
           <div key={eta} style={{ marginBottom: "1rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{eta}</div>
-              <span style={{ fontSize: 11, fontWeight: 500, padding: "2px 9px", borderRadius: 20, background: sl.bg, color: sl.color }}>{sl.label}</span>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{eta}</div>
+              <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 6, background: sl.bg, color: sl.color }}>{sl.label}</span>
             </div>
             {items.map(item => {
               const sc = statusConfig[item.status] || statusConfig.shipped;
+              const isDone = item.status === "delivered";
               return (
-                <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 10, marginBottom: 6, opacity: item.status === "delivered" ? 0.65 : 1 }}>
-                  <span style={{ fontSize: 14, flexShrink: 0 }}>{sc.icon}</span>
-                  <div style={{ flex: 1, fontSize: 13, color: item.status === "delivered" ? C.textSub : C.text, textDecoration: item.status === "delivered" ? "line-through" : "none" }}>{item.name}</div>
+                <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: C.bg, border: `1px solid ${C.border}`, borderLeft: `3px solid ${isDone ? C.green : C.teal}`, borderRadius: 10, marginBottom: 6, opacity: isDone ? 0.6 : 1 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: sc.color, flexShrink: 0, minWidth: 16, textAlign: "center" }}>{sc.icon}</span>
+                  <div style={{ flex: 1, fontSize: 13, color: isDone ? C.textSub : C.text, textDecoration: isDone ? "line-through" : "none" }}>{item.name}</div>
                   <div style={{ fontSize: 12, color: C.textHint, whiteSpace: "nowrap" }}>×{item.qty}</div>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: C.text, minWidth: 64, textAlign: "right" }}>{fmt(item.total)}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: C.text, minWidth: 64, textAlign: "right" }}>{fmt(item.total)}</div>
                 </div>
               );
             })}
@@ -475,6 +574,7 @@ function MaterialsTab() {
 // ─── Expenses Tab ─────────────────────────────────────────────────────────────
 
 function ExpensesTab({ expenses, setExpenses, save }) {
+  const C = useContext(ThemeContext);
   const [modal, setModal] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
@@ -499,6 +599,7 @@ function ExpensesTab({ expenses, setExpenses, save }) {
 
   const labor = expenses.filter(e => e.cat === "labor").reduce((s, e) => s + e.amount, 0);
   const mats = expenses.filter(e => e.cat === "materials").reduce((s, e) => s + e.amount, 0);
+  const other = expenses.filter(e => e.cat === "other").reduce((s, e) => s + e.amount, 0);
   const total = expenses.reduce((s, e) => s + e.amount, 0);
   const confirmed = expenses.filter(e => e.status === "confirmed" || e.status === "paid").reduce((s, e) => s + e.amount, 0);
   const lpct = total > 0 ? Math.round(labor / total * 100) : 0;
@@ -506,29 +607,49 @@ function ExpensesTab({ expenses, setExpenses, save }) {
 
   const catColor = { labor: "teal", materials: "green", other: "purple" };
   const statusColor = { confirmed: "teal", estimated: "amber", paid: "green" };
+  const catAccent = { labor: "teal", materials: "green", other: "purple" };
+
+  const donutSlices = [
+    { value: labor, color: C.teal },
+    { value: mats,  color: C.green },
+    { value: other, color: C.purple },
+  ];
 
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 12, marginBottom: "1.5rem" }}>
         <MetricCard label="Total spend" value={fmt(total)} accent="blue" />
-        <MetricCard label="Labor" value={fmt(labor)} sub={`${lpct}% of total`} accent="purple" />
+        <MetricCard label="Labor" value={fmt(labor)} sub={`${lpct}% of total`} accent="teal" />
         <MetricCard label="Materials" value={fmt(mats)} sub={`${mpct}% of total`} accent="green" />
         <MetricCard label="Confirmed" value={fmt(confirmed)} sub={`${fmt(total - confirmed)} est.`} accent="amber" />
       </div>
 
+      {/* Donut + breakdown */}
       <Card>
-        <div style={{ fontSize: 12, fontWeight: 600, color: C.textSub, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 12 }}>Spend breakdown</div>
-        {[{ label: "Labor", pct: lpct, amount: labor, color: C.blue }, { label: "Materials", pct: mpct, amount: mats, color: C.green }].map(b => (
-          <div key={b.label} style={{ marginBottom: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
-              <span style={{ color: C.textSub }}>{b.label}</span>
-              <span style={{ fontWeight: 500 }}>{fmt(b.amount)} <span style={{ color: C.textHint, fontWeight: 400 }}>({b.pct}%)</span></span>
-            </div>
-            <div style={{ background: C.bgPage, borderRadius: 20, height: 8, overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 20, background: b.color, width: `${b.pct}%` }} />
-            </div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: C.textHint, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 14 }}>Spend breakdown</div>
+        <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+          <DonutChart slices={donutSlices} />
+          <div style={{ flex: 1 }}>
+            {[
+              { label: "Labor", pct: lpct, amount: labor, color: C.teal },
+              { label: "Materials", pct: mpct, amount: mats, color: C.green },
+              { label: "Other", pct: total > 0 ? Math.round(other / total * 100) : 0, amount: other, color: C.purple },
+            ].map(b => (
+              <div key={b.label} style={{ marginBottom: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: 2, background: b.color }} />
+                    <span style={{ color: C.textSub }}>{b.label}</span>
+                  </div>
+                  <span style={{ fontWeight: 600, color: C.text }}>{fmt(b.amount)} <span style={{ color: C.textHint, fontWeight: 400 }}>({b.pct}%)</span></span>
+                </div>
+                <div style={{ background: C.bgPage, borderRadius: 20, height: 5, overflow: "hidden" }}>
+                  <div style={{ height: "100%", borderRadius: 20, background: b.color, width: `${b.pct}%`, transition: "width 0.5s ease" }} />
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </Card>
 
       {IS_EDIT && modal && (
@@ -555,17 +676,17 @@ function ExpensesTab({ expenses, setExpenses, save }) {
       <SectionHeader label="All expenses" action={<Btn onClick={openAdd} label="+ Add" small />} />
 
       {[...expenses].sort((a, b) => b.amount - a.amount).map(e => (
-        <Card key={e.id}>
+        <Card key={e.id} accent={catAccent[e.cat]}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: C.text, marginBottom: 4 }}>{e.desc}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 5 }}>{e.desc}</div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <Badge label={e.cat.charAt(0).toUpperCase()+e.cat.slice(1)} color={catColor[e.cat]||"gray"} />
                 <Badge label={e.status.charAt(0).toUpperCase()+e.status.slice(1)} color={statusColor[e.status]||"gray"} />
               </div>
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, color: e.amount > 0 ? C.text : C.textHint }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: e.amount > 0 ? C.text : C.textHint, letterSpacing: "-.02em" }}>
                 {e.amount > 0 ? fmt(e.amount) : "TBD"}
               </div>
               {IS_EDIT && (
@@ -581,7 +702,7 @@ function ExpensesTab({ expenses, setExpenses, save }) {
 
       <div style={{ background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 12, padding: "1rem 1.25rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: C.text, letterSpacing: "-.01em" }}>Total</span>
-        <span style={{ fontSize: 20, fontWeight: 700, color: C.text, letterSpacing: "-.02em" }}>{fmt(total)}</span>
+        <span style={{ fontSize: 22, fontWeight: 700, color: C.text, letterSpacing: "-.03em" }}>{fmt(total)}</span>
       </div>
     </div>
   );
@@ -590,6 +711,7 @@ function ExpensesTab({ expenses, setExpenses, save }) {
 // ─── Agents Tab ───────────────────────────────────────────────────────────────
 
 function AgentsTab({ agents, setAgents, save }) {
+  const C = useContext(ThemeContext);
   const [modal, setModal] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
@@ -642,13 +764,13 @@ function AgentsTab({ agents, setAgents, save }) {
       <SectionHeader label={`Agents · ${agents.length}`} action={<Btn onClick={openAdd} label="+ Add agent" small />} />
 
       {agents.map((a, i) => (
-        <Card key={a.id}>
+        <Card key={a.id} accent={statusColor[a.status] === "green" ? "green" : statusColor[a.status] === "blue" ? "blue" : undefined}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
             <Avatar name={a.name} color={avatarColors[i % avatarColors.length]} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 500, color: C.text }}>{a.name}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{a.name}</div>
                   <div style={{ fontSize: 12, color: C.textSub, marginTop: 2 }}>{a.brokerage}</div>
                 </div>
                 <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
@@ -675,17 +797,18 @@ function AgentsTab({ agents, setAgents, save }) {
 // ─── Transaction Tab ──────────────────────────────────────────────────────────
 
 function TransactionTab({ contacts, setContacts, save }) {
+  const C = useContext(ThemeContext);
   const [modal, setModal] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({});
 
   const roleConfig = {
-    escrow:    { label: "Escrow",     color: "purple" },
-    title:     { label: "Title",      color: "blue"   },
-    lender:    { label: "Lender",     color: "green"  },
-    inspector: { label: "Inspector",  color: "amber"  },
-    seller:    { label: "Seller",     color: "green"  },
-    other:     { label: "Other",      color: "gray"   },
+    escrow:    { label: "Escrow",    color: "purple" },
+    title:     { label: "Title",     color: "blue"   },
+    lender:    { label: "Lender",    color: "green"  },
+    inspector: { label: "Inspector", color: "amber"  },
+    seller:    { label: "Seller",    color: "teal"   },
+    other:     { label: "Other",     color: "gray"   },
   };
 
   const openAdd = () => { setForm({ name:"",company:"",role:"escrow",phone:"",mobile:"",email:"",notes:"" }); setEditId(null); setModal(true); };
@@ -746,13 +869,13 @@ function TransactionTab({ contacts, setContacts, save }) {
       {contacts.map((c, i) => {
         const rc = roleConfig[c.role] || roleConfig.other;
         return (
-          <Card key={c.id}>
+          <Card key={c.id} accent={rc.color !== "gray" ? rc.color : undefined}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
               <Avatar name={c.name} color={avatarColors[i % avatarColors.length]} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 500, color: C.text }}>{c.name}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{c.name}</div>
                     <div style={{ fontSize: 12, color: C.textSub, marginTop: 2 }}>{c.company}</div>
                   </div>
                   <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
@@ -795,6 +918,14 @@ export default function App() {
   const [agents, setAgents] = useState(DEFAULT_AGENTS);
   const [contacts, setContacts] = useState(DEFAULT_CONTACTS);
   const [status, setStatus] = useState("Loading...");
+  const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
+
+  const C = dark ? DARK : LIGHT;
+
+  useEffect(() => {
+    document.body.style.background = dark ? DARK.bgPage : LIGHT.bgPage;
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
 
   const saveData = useCallback(async (key, value) => {
     try {
@@ -858,51 +989,61 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 880, margin: "0 auto", padding: "2rem 2rem 3rem", fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
-      {/* Header */}
-      <div style={{ marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 8 }}>
-              2669 Kendrick Circle · Stonegate West, San Jose
+    <ThemeContext.Provider value={C}>
+      <div style={{ maxWidth: 880, margin: "0 auto", padding: "2rem 2rem 3rem", fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: C.textHint, textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 8 }}>
+                2669 Kendrick Circle · Stonegate West, San Jose
+              </div>
+              <h1 style={{ fontSize: 26, fontWeight: 700, color: C.text, margin: 0, letterSpacing: "-.03em" }}>Listing Prep Tracker</h1>
             </div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, color: C.text, margin: 0, letterSpacing: "-.03em" }}>Listing Prep Tracker</h1>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 4 }}>
+              {IS_EDIT && <span style={{ fontSize: 11, background: C.tealLight, color: C.teal, padding: "4px 12px", borderRadius: 20, fontWeight: 600, border: `1px solid rgba(13,148,136,0.2)` }}>Edit mode</span>}
+              {status && <span style={{ fontSize: 12, color: C.textHint }}>{status}</span>}
+              <button onClick={() => setDark(d => !d)} title={dark ? "Switch to light mode" : "Switch to dark mode"} style={{
+                width: 34, height: 34, borderRadius: 8, border: `1px solid ${C.borderMed}`,
+                background: C.bgSoft, cursor: "pointer", fontSize: 16,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: C.text, flexShrink: 0,
+              }}>
+                {dark ? "☀" : "◑"}
+              </button>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 4 }}>
-            {IS_EDIT && <span style={{ fontSize: 11, background: C.tealLight, color: C.teal, padding: "4px 12px", borderRadius: 20, fontWeight: 600, border: `1px solid rgba(13,148,136,0.2)` }}>Edit mode</span>}
-            {status && <span style={{ fontSize: 12, color: C.textHint }}>{status}</span>}
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px" }}>
+            <span style={{ fontSize: 12, color: C.textSub, fontWeight: 500 }}>Target list date: Jun 24–25, 2026</span>
           </div>
         </div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, background: C.bgSoft, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px" }}>
-          <span style={{ fontSize: 12, color: C.textSub, fontWeight: 500 }}>Target list date: Jun 24–25, 2026</span>
+
+        {/* Tabs */}
+        <div style={{ display: "flex", marginBottom: "2rem", borderBottom: `1px solid ${C.border}` }}>
+          {TABS.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)} style={{
+              fontSize: 13, padding: "10px 20px 10px 0", cursor: "pointer",
+              border: "none",
+              borderBottom: tab === t.key ? `2px solid ${C.teal}` : "2px solid transparent",
+              background: "transparent",
+              color: tab === t.key ? C.teal : C.textSub,
+              fontWeight: tab === t.key ? 600 : 500,
+              marginBottom: -1, marginRight: 4,
+              transition: "color 0.15s ease",
+              whiteSpace: "nowrap",
+            }}>
+              {t.label}
+            </button>
+          ))}
         </div>
-      </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", marginBottom: "2rem", borderBottom: `1px solid ${C.border}` }}>
-        {TABS.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)} style={{
-            fontSize: 13, padding: "10px 20px 10px 0", cursor: "pointer",
-            border: "none",
-            borderBottom: tab === t.key ? `2px solid ${C.teal}` : "2px solid transparent",
-            background: "transparent",
-            color: tab === t.key ? C.teal : C.textSub,
-            fontWeight: tab === t.key ? 600 : 500,
-            marginBottom: -1,
-            marginRight: 4,
-            transition: "color 0.15s ease",
-            whiteSpace: "nowrap",
-          }}>
-            {t.label}
-          </button>
-        ))}
+        {tab === "trades"      && <TradesTab trades={trades} setTrades={setTrades} save={saveData} />}
+        {tab === "materials"   && <MaterialsTab />}
+        {tab === "expenses"    && <ExpensesTab expenses={expenses} setExpenses={setExpenses} save={saveData} />}
+        {tab === "agents"      && <AgentsTab agents={agents} setAgents={setAgents} save={saveData} />}
+        {tab === "transaction" && <TransactionTab contacts={contacts} setContacts={setContacts} save={saveData} />}
       </div>
-
-      {tab === "trades"      && <TradesTab trades={trades} setTrades={setTrades} save={saveData} />}
-      {tab === "materials"   && <MaterialsTab />}
-      {tab === "expenses"    && <ExpensesTab expenses={expenses} setExpenses={setExpenses} save={saveData} />}
-      {tab === "agents"      && <AgentsTab agents={agents} setAgents={setAgents} save={saveData} />}
-      {tab === "transaction" && <TransactionTab contacts={contacts} setContacts={setContacts} save={saveData} />}
-    </div>
+    </ThemeContext.Provider>
   );
 }
